@@ -1,4 +1,4 @@
-# Orders Service
+# DevOps Troubleshooting Lab
 
 A hands-on DevOps learning project: a Flask orders API running with Gunicorn and PostgreSQL, managed through Docker Compose.
 
@@ -35,8 +35,8 @@ Prerequisites: Git, Docker Engine/Desktop running with Linux containers, and Doc
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Lokesh0423/orders-service.git
-cd orders-service
+git clone https://github.com/Lokesh0423/devops-troubleshooting-lab.git
+cd devops-troubleshooting-lab
 ```
 
 ### 2. Configure the database password
