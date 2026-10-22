@@ -89,6 +89,24 @@ def list_orders():
     return jsonify(orders), 200
 
 
+@app.get("/orders/<int:order_id>")
+def get_order(order_id):
+    with get_connection() as conn:
+        order = conn.execute(
+            """
+            SELECT id, item, quantity
+            FROM orders
+            WHERE id = %s
+            """,
+            (order_id,)
+        ).fetchone()
+
+    if order is None:
+        return jsonify(error="Order not found"), 404
+
+    return jsonify(order), 200
+
+
 @app.errorhandler(psycopg.Error)
 def database_error(error):
     app.logger.exception("Database operation failed")
