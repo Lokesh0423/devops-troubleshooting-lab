@@ -91,7 +91,8 @@ Both should return HTTP 200. The readiness check verifies database connectivity 
 | GET | `/health` | App responds to HTTP requests |
 | GET | `/ready` | Database connectivity |
 | POST | `/orders` | Create an order |
-| GET | `/orders` | List orders by ID |
+| GET | `/orders` | List all orders sorted by ID |
+| GET | `/orders/<order_id>` | Fetch one order by its integer ID |
 
 ### Create an order
 
@@ -120,6 +121,32 @@ Expected status: `200 OK`.
 ```json
 [{"id":1,"item":"Biryani","quantity":2}]
 ```
+
+### Fetch an order by ID
+
+```bash
+curl -i http://localhost:8000/orders/1
+```
+
+For an existing order, expected status: `200 OK`.
+
+```json
+{"id":1,"item":"Biryani","quantity":2}
+```
+
+For an ID that does not exist:
+
+```bash
+curl -i http://localhost:8000/orders/99999
+```
+
+Expected status: `404 NOT FOUND`, provided order 99999 does not exist.
+
+```json
+{"error":"Order not found"}
+```
+
+Both the existing-order (200) and missing-order (404) cases were verified in the local lab. The endpoint uses a parameterized SQL query to look up the order.
 
 Database errors are logged and return HTTP 503.
 
