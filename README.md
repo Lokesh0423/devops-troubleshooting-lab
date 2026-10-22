@@ -205,7 +205,3 @@ curl -i http://localhost:8000/orders
 ```
 
 **Verified recovery:** Both endpoints returned HTTP 200 and the saved order remained, without restarting the app.
-
-## Current scope
-
-This is a local learning project. Authentication, automated CI/CD, database backups, and production deployment are not implemented. Table initialization is manual, and dependency versions use ranges.
