@@ -232,3 +232,56 @@ curl -i http://localhost:8000/orders
 ```
 
 **Verified recovery:** Both endpoints returned HTTP 200 and the saved order remained, without restarting the app.
+
+## Application healthcheck
+
+Added on 24 October 2026 in [PR #1](https://github.com/Lokesh0423/devops-troubleshooting-lab/pull/1), merged into `main`.
+
+The app healthcheck runs inside the container using Python's standard library, so no additional curl package is required:
+
+```yaml
+healthcheck:
+  test:
+    - CMD
+    - python
+    - -c
+    - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 15s
+```
+
+This block belongs under the `app` service in `compose.yaml`. Docker runs the check every 10 seconds. The HTTP request has a 3-second timeout, and Docker allows 5 seconds for the command. After the startup grace period, three consecutive failures mark the container unhealthy. This does not automatically restart it.
+
+The check targets application liveness (`/health`), not database readiness. A healthy app container can still return 503 for database-dependent requests; use `/ready` and an actual order request to investigate those separately.
+
+### Local verification
+
+```bash
+docker compose up -d --build
+docker compose ps
+curl -i http://localhost:8000/health
+curl -i http://localhost:8000/ready
+```
+
+Observed on 24 October 2026:
+
+| Check | Result |
+| --- | --- |
+| App container | healthy |
+| Database container | healthy |
+| GET /health | HTTP 200, status ok |
+| GET /ready | HTTP 200, status ready |
+
+These are recorded local results, not live telemetry or a new fault-injection test.
+
+### Git delivery workflow
+
+1. Created `devops/app-healthcheck` from `main`.
+2. Updated `compose.yaml`, started the services and checked container health and HTTP responses.
+3. Reviewed `git diff -- compose.yaml`, committed and pushed the branch.
+4. Opened and reviewed PR #1, then merged it into `main`.
+5. Switched to local `main`, pulled the merged change and confirmed a clean working tree.
+
+[Inspect the merge commit](https://github.com/Lokesh0423/devops-troubleshooting-lab/commit/b2697e6f87c4ec945a4e70576b778fa2d6492057).
